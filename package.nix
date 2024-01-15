@@ -62,6 +62,11 @@ buildBazelPackage rec {
       unzip bazel-bin/unix/mozc.zip
       mkdir $out
       cp -r usr/* $out
+
+      substituteInPlace \
+        $out/share/ibus/component/mozc.xml \
+        $out/share/emacs/site-lisp/emacs-mozc/mozc.el \
+        --replace "/usr/lib" "$out/lib"
     '';
   };
 
