@@ -7,6 +7,7 @@
 , bazel
 , ibus
 , unzip
+, xdg-utils
 }:
 
 buildBazelPackage rec {
@@ -53,20 +54,19 @@ buildBazelPackage rec {
     "package"
   ];
 
+  postPatch = ''
+    substituteInPlace src/config.bzl \
+      --replace "/usr/bin/xdg-open" "${xdg-utils}/bin/xdg-open" \
+      --replace "/usr" "$out" 
+  '';
+
   preConfigure = ''
     cd src
   '';
 
   buildAttrs = {
     installPhase = ''
-      unzip bazel-bin/unix/mozc.zip
-      mkdir $out
-      cp -r usr/* $out
-
-      substituteInPlace \
-        $out/share/ibus/component/mozc.xml \
-        $out/share/emacs/site-lisp/emacs-mozc/mozc.el \
-        --replace "/usr/lib" "$out/lib"
+      unzip bazel-bin/unix/mozc.zip -x "tmp/*" -d /
     '';
   };
 
