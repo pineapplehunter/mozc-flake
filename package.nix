@@ -39,7 +39,7 @@ buildBazelPackage rec {
   inherit bazel;
 
   fetchAttrs = {
-    sha256 = "sha256-BNtdsy3z5jIlZnSE65K8VhJn9+9qHttpUWUvClA7+04=";
+    sha256 = "sha256-S0xB+XujZM2dFMHzVytfgbX9VoMqiXsmPCJaCVR9MH4=";
   };
 
   bazelFlags = [
@@ -50,9 +50,7 @@ buildBazelPackage rec {
   ];
 
   bazelTargets = [
-    "renderer/qt:mozc_renderer"
-    "unix/ibus:ibus_mozc"
-    "unix/icons"
+    "package"
   ];
 
   preConfigure = ''
@@ -61,29 +59,9 @@ buildBazelPackage rec {
 
   buildAttrs = {
     installPhase = ''
-      install -Dm644 ../LICENSE                                   $out/share/licenses/mozc/LICENSE
-      install -Dm644 data/installer/credits_en.html               $out/share/licenses/mozc/credits_en.html
-      install -Dm644 data/installer/credits_en.html               $out/share/doc/mozc/credits_en.html
-
-      install -Dm755 bazel-bin/renderer/qt/mozc_renderer          $out/lib/mozc/mozc_renderer
-
-      install -Dm755 bazel-bin/unix/ibus/ibus_mozc                $out/lib/ibus-mozc/ibus-engine-mozc
-      install -Dm644 bazel-bin/unix/ibus/mozc.xml                 $out/share/ibus/component/mozc.xml
-
-      cd bazel-bin/unix
-
-      unzip -o icons.zip
-
-      install -Dm644 mozc.png                                     $out/share/ibus-mozc/product_icon.png
-      install -Dm644 alpha_full.svg                               $out/share/ibus-mozc/alpha_full.svg
-      install -Dm644 alpha_half.svg                               $out/share/ibus-mozc/alpha_half.svg
-      install -Dm644 direct.svg                                   $out/share/ibus-mozc/direct.svg
-      install -Dm644 hiragana.svg                                 $out/share/ibus-mozc/hiragana.svg
-      install -Dm644 katakana_full.svg                            $out/share/ibus-mozc/katakana_full.svg
-      install -Dm644 katakana_half.svg                            $out/share/ibus-mozc/katakana_half.svg
-      install -Dm644 outlined/dictionary.svg                      $out/share/ibus-mozc/dictionary.svg
-      install -Dm644 outlined/properties.svg                      $out/share/ibus-mozc/properties.svg
-      install -Dm644 outlined/tool.svg                            $out/share/ibus-mozc/tool.svg
+      unzip bazel-bin/unix/mozc.zip
+      mkdir $out
+      cp -r usr/* $out
     '';
   };
 
