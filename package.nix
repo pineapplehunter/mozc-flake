@@ -6,6 +6,7 @@
 , python3
 , bazel
 , ibus
+, unzip
 }:
 
 buildBazelPackage rec {
@@ -24,6 +25,7 @@ buildBazelPackage rec {
     pkg-config
     python3
     qt6.wrapQtAppsHook
+    unzip
   ];
 
   buildInputs = [
