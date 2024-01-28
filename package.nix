@@ -3,7 +3,6 @@
 , fetchFromGitHub
 , qt6
 , pkg-config
-, python3
 , bazel
 , ibus
 , unzip
@@ -17,22 +16,14 @@ buildBazelPackage rec {
   src = fetchFromGitHub {
     owner = "google";
     repo = "mozc";
-    rev = "refs/tags/${version}";
+    rev = version;
     hash = "sha256-B7hG8OUaQ1jmmcOPApJlPVcB8h1Rw06W5LAzlTzI9rU=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [
-    pkg-config
-    python3
-    qt6.wrapQtAppsHook
-    unzip
-  ];
+  nativeBuildInputs = [ qt6.wrapQtAppsHook pkg-config unzip ];
 
-  buildInputs = [
-    qt6.qtbase
-    ibus
-  ];
+  buildInputs = [ ibus qt6.qtbase ];
 
   dontAddBazelOpts = true;
   removeRulesCC = false;
@@ -40,35 +31,36 @@ buildBazelPackage rec {
   inherit bazel;
 
   fetchAttrs = {
-    sha256 = "sha256-S0xB+XujZM2dFMHzVytfgbX9VoMqiXsmPCJaCVR9MH4=";
+    sha256 = "sha256-17QHh1MJUu8OK/T+WSpLXEx83DmRORLN7yLzILqP7vw=";
+
+    # remove references of buildInputs
+    preInstall = ''
+      rm -rv $bazelOut/external/{ibus,qt_linux}
+    '';
   };
 
-  bazelFlags = [
-    "--config"
-    "oss_linux"
-    "--compilation_mode"
-    "opt"
-  ];
+  bazelFlags = [ "--config" "oss_linux" "--compilation_mode" "opt" ];
 
-  bazelTargets = [
-    "package"
-  ];
+  bazelTargets = [ "package" ];
 
   postPatch = ''
     substituteInPlace src/config.bzl \
       --replace "/usr/bin/xdg-open" "${xdg-utils}/bin/xdg-open" \
-      --replace "/usr" "$out" 
+      --replace "/usr" "$out"
   '';
 
   preConfigure = ''
     cd src
   '';
 
-  buildAttrs = {
-    installPhase = ''
-      unzip bazel-bin/unix/mozc.zip -x "tmp/*" -d /
-    '';
-  };
+  buildAttrs.installPhase = ''
+    runHook preInstall
+
+    unzip bazel-bin/unix/mozc.zip -x "tmp/*" -d /
+
+    runHook postInstall
+  '';
+
 
   meta = with lib; {
     isIbusEngine = true;
@@ -79,4 +71,3 @@ buildBazelPackage rec {
     maintainers = with maintainers; [ gebner ericsagnes pineapplehunter ];
   };
 }
-
